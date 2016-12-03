@@ -1,0 +1,14 @@
+{
+  "name": "bible_trivia",
+  "version": "1.0.0",
+  "description": "A simple bible trivia game",
+  "main": "index.js",
+  "author": "Nick LaPrell <Nick@LaPrell.org> (http://nick.laprell.org/)",
+  "license": "ISC",
+  "alexa": {
+    "applicationId":"amzn1.ask.skill.a4a5c432-9661-4bc9-9cb8-ed538ceb9689"
+  },
+  "dependencies": {
+    "alexa-app": "^2.1.0"
+  }
+}
