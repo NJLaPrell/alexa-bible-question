@@ -1,59 +1,62 @@
 // TODO: Move the audio into the public alexa folder
 
-
 var questions = [
-	{"question": "Who parted the red sea?", "answer": "moses"},
+	{"question": "Who parted the red sea?", "answer": "Moses"},
 	{"question": "How many days did it take for God to create the earth?", "answer": "7"}
 ];
-
-var intro = 'It\'s time for some bible trivia!  Are you ready? <audio src="https://home.laprell.org/sounds/air_horn.mp3" />';
 
 var alexa = require('alexa-app');
 
 // Allow this module to be reloaded by hotswap when changed
 module.change_code = 1;
 
-var lastQuestion = null;
-var lastQuestionAnswer = null;
 
 // Define an alexa-app
-var app = new alexa.app('bible_trivia');
+var app = new alexa.app('bible_trivia_question');
 app.launch(function(req,res) {
-	launch(res);
+	launch(req,res);
 });
 
-var launch = function(res){
-	res.say(intro).reprompt(intro).shouldEndSession(false);
+var launch = function(req,res){
+	res.say(getQuestion(req,res)).reprompt('<audio src="https://home.laprell.org/audio/buzzer3.mp3" />').shouldEndSession(false);
 };
 
-app.intent("AMAZON.YesIntent", function(req, res){
-	res.say(getQuestion(res) + ' <audio src="http://192.168.0.35/air_horn.mp3" />').shouldEndSession(false);
+app.intent("AMAZON.RepeatIntent", function(req, res){
+	launch(req,res);
 });
 
-app.intent("AMAZON.NoIntent", function(req, res){
-	res.say("Okay. Good bye.");
-});
+var lastQuestion;
+var lastQuestionAnswer;
 
 app.intent('AnswerIntent', {
 		"slots":{"ANSWER":"LIST_OF_ANSWERS"},
 		"utterances":["{moses|seven|ANSWER}"]
 	},function(req,res) {
-		res.say('Your answer is ' + req.slot('ANSWER'));
-		res.say("The question was " + req.session('lastQuestion'));
-		res.say("The answer is " + req.session('lastQuestionAnswer'));
-		if(req.slot('ANSWER') == req.session('lastQuestionAnswer')){
-			res.say("You are right");
+		console.log('SCORE: Your answer is ' + req.slot('ANSWER'));
+		console.log("The question was " + lastQuestion);
+		console.log("The answer is " + lastQuestionAnswer);
+		
+		if(req.slot('ANSWER') == lastQuestionAnswer){
+			reset();
+			res.say('<audio src="https://home.laprell.org/audio/mario-victory.mp3" />');
 		} else {
-			res.say("You are wrong");
+			reset();
+			res.say('<audio src="https://home.laprell.org/audio/buzzer3.mp3" />');
 		}
+		
 	}
 );
 
-var getQuestion = function(res){
-	var question = pickRandomQuestion();
-	res.session('lastQuestion', question.question);
-	res.session('lastQuestionAnswer', question.answer);
-	return question.answer;
+var getQuestion = function(req,res){
+	//if(req.session('lastQuestion')){
+	if(lastQuestion){
+		return lastQuestion;	
+	} else {
+		var question = pickRandomQuestion();
+		lastQuestion = question.question;
+		lastQuestionAnswer = question.answer;
+		return question.question;	
+	}
 };
 
 var pickRandomQuestion = function(){
@@ -65,5 +68,10 @@ app.error = function(exception, request, response) {
     console.log(exception);
     throw exception;
 };
+
+var reset = (function(req,res) {
+    lastQuestion = null;
+    lastQuestionAnswer = null;
+});
 
 module.exports = app;

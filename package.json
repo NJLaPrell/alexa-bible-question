@@ -1,5 +1,5 @@
 {
-  "name": "bible_trivia",
+  "name": "bible_trivia_question",
   "version": "1.0.0",
   "description": "A simple bible trivia game",
   "main": "index.js",
